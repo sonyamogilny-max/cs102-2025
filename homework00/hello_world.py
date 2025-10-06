@@ -4,13 +4,7 @@
 """
 
 
-def text():
-    """
-    Возвращает текстовое сообщениеpylint
-    Returns:
-        str: текстовое сообщение
-    """
-    message = "Hello World"
+def text(message='message'):
     return message
 
 
