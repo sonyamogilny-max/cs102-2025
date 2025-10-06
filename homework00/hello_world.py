@@ -4,7 +4,7 @@
 """
 
 
-def text(message='message'):
+def text(message="message"):
     return message
 
 
