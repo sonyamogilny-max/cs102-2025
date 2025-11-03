@@ -44,20 +44,17 @@ def multiplicative_inverse(e: int, phi: int) -> int:
     >>> multiplicative_inverse(7, 40)
     23
     """
+    a, b = e, phi
+    x0, x1 = 1, 0
+    y0, y1 = 0, 1
 
-    def extended_euclidean(a, b):
-        if b == 0:
-            return a, 1, 0
+    while b != 0:
+        q = a // b
+        a, b = b, a % b
+        x0, x1 = x1, x0 - q * x1
+        y0, y1 = y1, y0 - q * y1
 
-        gcd, x1, y1 = extended_euclidean(b, a % b)
-        x = y1
-        y = x1 - (a // b) * y1
-
-        return gcd, x, y
-
-    gcd, x, y = extended_euclidean(e, phi)
-    return x % phi
-
+    return x0 % phi
 
 def generate_keypair(p: int, q: int) -> tp.Tuple[tp.Tuple[int, int], tp.Tuple[int, int]]:
     if not (is_prime(p) and is_prime(q)):
