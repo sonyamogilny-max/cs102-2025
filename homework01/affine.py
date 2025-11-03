@@ -1,5 +1,5 @@
 def encrypt_affine(plaintext, a, b):
-    ciphertext = ''
+    ciphertext = ""
     m = 33
     for char in plaintext:
         if char.isalpha():
