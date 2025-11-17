@@ -1,12 +1,12 @@
 import pathlib
-import typing as tp
 import random
+import typing as tp
 
 T = tp.TypeVar("T")
 
 
 def read_sudoku(path: tp.Union[str, pathlib.Path]) -> tp.List[tp.List[str]]:
-    """ Прочитать Судоку из указанного файла """
+    """Прочитать Судоку из указанного файла"""
     path = pathlib.Path(path)
     with path.open() as f:
         puzzle = f.read()
@@ -20,15 +20,11 @@ def create_grid(puzzle: str) -> tp.List[tp.List[str]]:
 
 
 def display(grid: tp.List[tp.List[str]]) -> None:
-    """Вывод Судоку """
+    """Вывод Судоку"""
     width = 2
     line = "+".join(["-" * (width * 3)] * 3)
     for row in range(9):
-        print(
-            "".join(
-                grid[row][col].center(width) + ("|" if str(col) in "25" else "") for col in range(9)
-            )
-        )
+        print("".join(grid[row][col].center(width) + ("|" if str(col) in "25" else "") for col in range(9)))
         if str(row) in "25":
             print(line)
     print()
@@ -44,7 +40,7 @@ def group(values: tp.List[T], n: int) -> tp.List[tp.List[T]]:
     """
     result = []
     for i in range(0, len(values), n):
-        result.append(values[i:i + n])
+        result.append(values[i : i + n])
     return result
 
 
@@ -107,13 +103,12 @@ def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[in
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
-    pos = tuple()
     for i in range(len(grid)):
-        for j in range(len(grid[i])):
-            if grid[i][j] == '.':
-                pos = (i, j)
-                break
-    return pos
+        for j in range(len(grid[0])):
+            if grid[i][j] == ".":
+                return (i, j)
+    return None
+
 
 def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
     """Вернуть множество возможных значения для указанной позиции
@@ -125,22 +120,22 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
     >>> values == {'2', '5', '9'}
     True
     """
-    if grid[pos[0]][pos[1]] != '.':
+    if grid[pos[0]][pos[1]] != ".":
         return set()
 
-    all_values = {'1', '2', '3', '4', '5', '6', '7', '8', '9'}
+    all_values = {"1", "2", "3", "4", "5", "6", "7", "8", "9"}
     row_values = set(get_row(grid, (pos[0], 0)))
     col_values = set(get_col(grid, (0, pos[1])))
     block_values = set(get_block(grid, pos))
 
     occupied_values = row_values | col_values | block_values
-    occupied_values.discard('.')
+    occupied_values.discard(".")
 
     return all_values - occupied_values
 
 
 def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
-    """ Решение пазла, заданного в grid """
+    """Решение пазла, заданного в grid"""
     """ Как решать Судоку?
         1. Найти свободную позицию
         2. Найти все возможные значения, которые могут находиться на этой позиции
@@ -164,16 +159,15 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
         solution = solve(grid)
         if solution is not None:
             return solution
-        grid[row][col] = '.'
-        
+        grid[row][col] = "."
+
     return None
 
 
-
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
-    """ Если решение solution верно, то вернуть True, в противном случае False """
+    """Если решение solution верно, то вернуть True, в противном случае False"""
     # TODO: Add doctests with bad puzzles
-    expected_set = set('123456789')
+    expected_set = set("123456789")
 
     for i in range(9):
         row_set = set(get_row(solution, (i, 0)))
@@ -192,6 +186,7 @@ def check_solution(solution: tp.List[tp.List[str]]) -> bool:
                 return False
 
     return True
+
 
 def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     """Генерация судоку заполненного на N элементов
@@ -217,17 +212,17 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     N = max(0, min(81, N))
 
     base = [
-        ['5', '3', '4', '6', '7', '8', '9', '1', '2'],
-        ['6', '7', '2', '1', '9', '5', '3', '4', '8'],
-        ['1', '9', '8', '3', '4', '2', '5', '6', '7'],
-        ['8', '5', '9', '7', '6', '1', '4', '2', '3'],
-        ['4', '2', '6', '8', '5', '3', '7', '9', '1'],
-        ['7', '1', '3', '9', '2', '4', '8', '5', '6'],
-        ['9', '6', '1', '5', '3', '7', '2', '8', '4'],
-        ['2', '8', '7', '4', '1', '9', '6', '3', '5'],
-        ['3', '4', '5', '2', '8', '6', '1', '7', '9']
+        ["5", "3", "4", "6", "7", "8", "9", "1", "2"],
+        ["6", "7", "2", "1", "9", "5", "3", "4", "8"],
+        ["1", "9", "8", "3", "4", "2", "5", "6", "7"],
+        ["8", "5", "9", "7", "6", "1", "4", "2", "3"],
+        ["4", "2", "6", "8", "5", "3", "7", "9", "1"],
+        ["7", "1", "3", "9", "2", "4", "8", "5", "6"],
+        ["9", "6", "1", "5", "3", "7", "2", "8", "4"],
+        ["2", "8", "7", "4", "1", "9", "6", "3", "5"],
+        ["3", "4", "5", "2", "8", "6", "1", "7", "9"],
     ]
-    
+
     # Случайно перемешиваем
     for _ in range(20):
         if random.random() > 0.5:
@@ -249,7 +244,7 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
         random.shuffle(positions)
         for i in range(81 - N):
             row, col = positions[i]
-            grid[row][col] = '.'
+            grid[row][col] = "."
 
     return grid
 
