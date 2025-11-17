@@ -1,5 +1,6 @@
 import pathlib
 import typing as tp
+import random
 
 T = tp.TypeVar("T")
 
@@ -172,8 +173,25 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
     """ Если решение solution верно, то вернуть True, в противном случае False """
     # TODO: Add doctests with bad puzzles
-    pass
+    expected_set = set('123456789')
 
+    for i in range(9):
+        row_set = set(get_row(solution, (i, 0)))
+        if row_set != expected_set:
+            return False
+
+    for j in range(9):
+        col_set = set(get_col(solution, (0, j)))
+        if col_set != expected_set:
+            return False
+
+    for i in range(0, 9, 3):
+        for j in range(0, 9, 3):
+            block_set = set(get_block(solution, (i, j)))
+            if block_set != expected_set:
+                return False
+
+    return True
 
 def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     """Генерация судоку заполненного на N элементов
@@ -196,7 +214,44 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     >>> check_solution(solution)
     True
     """
-    pass
+    N = max(0, min(81, N))
+
+    base = [
+        ['5', '3', '4', '6', '7', '8', '9', '1', '2'],
+        ['6', '7', '2', '1', '9', '5', '3', '4', '8'],
+        ['1', '9', '8', '3', '4', '2', '5', '6', '7'],
+        ['8', '5', '9', '7', '6', '1', '4', '2', '3'],
+        ['4', '2', '6', '8', '5', '3', '7', '9', '1'],
+        ['7', '1', '3', '9', '2', '4', '8', '5', '6'],
+        ['9', '6', '1', '5', '3', '7', '2', '8', '4'],
+        ['2', '8', '7', '4', '1', '9', '6', '3', '5'],
+        ['3', '4', '5', '2', '8', '6', '1', '7', '9']
+    ]
+    
+    # Случайно перемешиваем
+    for _ in range(20):
+        if random.random() > 0.5:
+            # Меняем две строки в одном блоке
+            block = random.randint(0, 2)
+            r1, r2 = random.sample(range(block * 3, block * 3 + 3), 2)
+            base[r1], base[r2] = base[r2], base[r1]
+        else:
+            # Меняем два столбца в одном блоке
+            block = random.randint(0, 2)
+            c1, c2 = random.sample(range(block * 3, block * 3 + 3), 2)
+            for i in range(9):
+                base[i][c1], base[i][c2] = base[i][c2], base[i][c1]
+
+    # Удаляем клетки
+    grid = [row[:] for row in base]
+    if N < 81:
+        positions = [(i, j) for i in range(9) for j in range(9)]
+        random.shuffle(positions)
+        for i in range(81 - N):
+            row, col = positions[i]
+            grid[row][col] = '.'
+
+    return grid
 
 
 if __name__ == "__main__":
