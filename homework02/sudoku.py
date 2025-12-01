@@ -38,10 +38,11 @@ def group(values: tp.List[T], n: int) -> tp.List[tp.List[T]]:
     >>> group([1,2,3,4,5,6,7,8,9], 3)
     [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     """
-    result = []
-    for i in range(0, len(values), n):
-        result.append(values[i : i + n])
-    return result
+    # result = []
+    # for i in range(0, len(values), n):
+    #     result.append(values[i : i + n])
+    # return result
+    return [values[i : i + n] for i in range(0, len(values), n)]
 
 
 def get_row(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
@@ -66,10 +67,7 @@ def get_col(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str
     >>> get_col([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (0, 2))
     ['3', '6', '9']
     """
-    result = []
-    for i in range(len(grid)):
-        result.append(grid[i][pos[1]])
-    return result
+    return [grid[i][pos[1]] for i in range(len(grid))]
 
 
 def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
@@ -103,9 +101,9 @@ def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[in
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
-    for i in range(len(grid)):
-        for j in range(len(grid[0])):
-            if grid[i][j] == ".":
+    for i, row in enumerate(grid):
+        for j, cell in enumerate(row):
+            if cell == ".":
                 return (i, j)
     return None
 
@@ -157,7 +155,7 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
     for value in possible_values:
         grid[row][col] = value
         solution = solve(grid)
-        if solution is not None:
+        if solution:
             return solution
         grid[row][col] = "."
 
@@ -210,43 +208,32 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     True
     """
     N = max(0, min(81, N))
+    grid = [["." for _ in range(9)] for _ in range(9)]
 
-    base = [
-        ["5", "3", "4", "6", "7", "8", "9", "1", "2"],
-        ["6", "7", "2", "1", "9", "5", "3", "4", "8"],
-        ["1", "9", "8", "3", "4", "2", "5", "6", "7"],
-        ["8", "5", "9", "7", "6", "1", "4", "2", "3"],
-        ["4", "2", "6", "8", "5", "3", "7", "9", "1"],
-        ["7", "1", "3", "9", "2", "4", "8", "5", "6"],
-        ["9", "6", "1", "5", "3", "7", "2", "8", "4"],
-        ["2", "8", "7", "4", "1", "9", "6", "3", "5"],
-        ["3", "4", "5", "2", "8", "6", "1", "7", "9"],
-    ]
+    for _ in range(10):
+        while True:
+            r = random.randint(0, 8)
+            c = random.randint(0, 8)
+            if grid[r][c] == ".":
+                possible = find_possible_values(grid, (r, c))
+                if possible:
+                    grid[r][c] = random.choice(list(possible))
+                break
+    solved = solve(grid)
 
-    # Случайно перемешиваем
-    for _ in range(20):
-        if random.random() > 0.5:
-            # Меняем две строки в одном блоке
-            block = random.randint(0, 2)
-            r1, r2 = random.sample(range(block * 3, block * 3 + 3), 2)
-            base[r1], base[r2] = base[r2], base[r1]
-        else:
-            # Меняем два столбца в одном блоке
-            block = random.randint(0, 2)
-            c1, c2 = random.sample(range(block * 3, block * 3 + 3), 2)
-            for i in range(9):
-                base[i][c1], base[i][c2] = base[i][c2], base[i][c1]
+    if solved is None:
+        return [["." for _ in range(9)] for _ in range(9)]
 
-    # Удаляем клетки
-    grid = [row[:] for row in base]
+    puzzle = [row[:] for row in solved]
+
     if N < 81:
-        positions = [(i, j) for i in range(9) for j in range(9)]
+        positions = [(r, c) for r in range(9) for c in range(9)]
         random.shuffle(positions)
         for i in range(81 - N):
-            row, col = positions[i]
-            grid[row][col] = "."
+            r, c = positions[i]
+            puzzle[r][c] = "."
 
-    return grid
+    return puzzle
 
 
 if __name__ == "__main__":
