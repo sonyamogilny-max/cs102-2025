@@ -1,6 +1,6 @@
 import curses
 import time
-from typing import Any
+from typing import Optional, Any, Tuple
 
 from life import GameOfLife
 from ui import UI
@@ -10,14 +10,14 @@ class Console(UI):
     def __init__(self, life: GameOfLife) -> None:
         """Инициализировать консольный интерфейс"""
         super().__init__(life)
-        self.screen = None
+        self.screen: Optional[curses.window] = None
 
-    def draw_borders(self, screen: Any) -> None:
+    def draw_borders(self, screen: curses.window) -> None:
         """Отобразить рамку"""
         screen.clear()
         screen.border(0)
 
-    def draw_grid(self, screen: Any) -> None:
+    def draw_grid(self, screen: curses.window) -> None:
         """Отобразить состояние клеток"""
         start_y = 1
         start_x = 1
@@ -50,7 +50,7 @@ class Console(UI):
 
         screen.refresh()
 
-    def handle_input(self, screen: Any, key: int) -> bool:
+    def handle_input(self, screen: curses.window, key: int) -> bool:
         """Обработать ввод пользователя"""
         if key == ord("q") or key == ord("Q"):
             return False
@@ -71,12 +71,14 @@ class Console(UI):
 
     def run(self) -> None:
         """Запустить основной цикл игры"""
-        self.screen = curses.initscr()
+        screen = curses.initscr()
+        self.screen = screen  # Присваиваем значение после инициализации
+
         try:
             # Настройки curses
             curses.curs_set(0)  # Скрываем курсор
-            self.screen.nodelay(True)  # Неблокирующий ввод
-            self.screen.timeout(100)  # Таймаут для обновления экрана (100 мс)
+            screen.nodelay(True)  # Неблокирующий ввод
+            screen.timeout(100)  # Таймаут для обновления экрана (100 мс)
 
             # Включаем поддержку цветов (если доступно)
             if curses.has_colors():
@@ -87,13 +89,13 @@ class Console(UI):
 
             while (running and self.life.is_changing
                    and not self.life.is_max_generations_exceeded):
-                self.draw_borders(self.screen)
-                self.draw_grid(self.screen)
+                self.draw_borders(screen)
+                self.draw_grid(screen)
 
                 try:
-                    key = self.screen.getch()
+                    key = screen.getch()
                     if key != -1:  # -1 означает отсутствие ввода
-                        running = self.handle_input(self.screen, key)
+                        running = self.handle_input(screen, key)
                 except curses.error:
                     pass
 
@@ -104,11 +106,11 @@ class Console(UI):
                 time.sleep(0.1)
 
             # Отображаем финальное состояние
-            self.draw_borders(self.screen)
-            self.draw_grid(self.screen)
+            self.draw_borders(screen)
+            self.draw_grid(screen)
 
             # Сообщение о завершении
-            rows, cols = self.screen.getmaxyx()
+            rows, cols = screen.getmaxyx()
             if not self.life.is_changing:
                 message = "Игра завершена: стабильная конфигурация достигнута."
             elif self.life.is_max_generations_exceeded:
@@ -118,9 +120,9 @@ class Console(UI):
                 message = "Игра завершена пользователем."
 
             try:
-                self.screen.addstr(rows - 1, 2, message[: cols - 4])
-                self.screen.refresh()
-                self.screen.getch()  # Ждем любую клавишу перед выходом
+                screen.addstr(rows - 1, 2, message[: cols - 4])
+                screen.refresh()
+                screen.getch()  # Ждем любую клавишу перед выходом
             except curses.error:
                 pass
 
