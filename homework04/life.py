@@ -103,7 +103,7 @@ class GameOfLife:
         """
         Прочитать состояние клеток из указанного файла.
         """
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             lines = f.readlines()
 
         lines = [line.strip() for line in lines if line.strip()]
@@ -115,7 +115,7 @@ class GameOfLife:
 
         for i, line in enumerate(lines):
             for j, char in enumerate(line):
-                if char == '1':
+                if char == "1":
                     game.curr_generation[i][j] = 1
                 else:
                     game.curr_generation[i][j] = 0
@@ -126,7 +126,7 @@ class GameOfLife:
         """
         Сохранить текущее состояние клеток в указанный файл.
         """
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             for row in self.curr_generation:
-                line = ''.join('1' if cell == 1 else '0' for cell in row)
-                f.write(line + '\n')
+                line = "".join("1" if cell == 1 else "0" for cell in row)
+                f.write(line + "\n")

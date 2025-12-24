@@ -41,15 +41,9 @@ class GUI(UI):
             return
 
         for x_coord in range(0, self.width, self.cell_size):
-            pygame.draw.line(
-                self.screen, pygame.Color("black"),
-                (x_coord, 0), (x_coord, self.height)
-            )
+            pygame.draw.line(self.screen, pygame.Color("black"), (x_coord, 0), (x_coord, self.height))
         for y_coord in range(0, self.height, self.cell_size):
-            pygame.draw.line(
-                self.screen, pygame.Color("black"),
-                (0, y_coord), (self.width, y_coord)
-            )
+            pygame.draw.line(self.screen, pygame.Color("black"), (0, y_coord), (self.width, y_coord))
 
     def draw_grid(self) -> None:
         """Нарисовать клетки игрового поля."""
@@ -107,19 +101,14 @@ class GUI(UI):
         if not self.life.is_changing:
             state_text = "СТАБИЛЬНАЯ КОНФИГУРАЦИЯ - ESC: выйти"
         elif self.life.is_max_generations_exceeded:
-            state_text = (
-                f"ДОСТИГНУТ ЛИМИТ ({self.life.max_generations} поколений) "
-                "- ESC: выйти"
-            )
+            state_text = f"ДОСТИГНУТ ЛИМИТ ({self.life.max_generations} поколений) " "- ESC: выйти"
 
         # Отрисовываем текст
         gen_surface = font.render(gen_text, True, pygame.Color("black"))
         state_surface = font.render(state_text, True, pygame.Color("black"))
 
         # Фон для текста
-        pygame.draw.rect(
-            self.screen, pygame.Color("white"), (0, 0, self.width, 50)
-        )
+        pygame.draw.rect(self.screen, pygame.Color("white"), (0, 0, self.width, 50))
 
         self.screen.blit(gen_surface, (10, 10))
         self.screen.blit(state_surface, (10, 35))
@@ -128,9 +117,7 @@ class GUI(UI):
         """Запустить основной цикл игры."""
         pygame.init()
 
-        self.screen = pygame.display.set_mode(
-            (self.width, self.height + 50)
-        )  # +50 для панели информации
+        self.screen = pygame.display.set_mode((self.width, self.height + 50))  # +50 для панели информации
         pygame.display.set_caption("Game of Life")
 
         clock = pygame.time.Clock()
@@ -158,9 +145,7 @@ class GUI(UI):
 
                     elif event.key == pygame.K_c and self.paused:
                         # Очистка поля (только в паузе)
-                        self.life.curr_generation = self.life.create_grid(
-                            randomize=False
-                        )
+                        self.life.curr_generation = self.life.create_grid(randomize=False)
 
                 elif event.type == pygame.MOUSEBUTTONDOWN and self.paused:
                     # Рисование клеток в режиме паузы
@@ -173,11 +158,7 @@ class GUI(UI):
                     if event.button == 1:  # Левая кнопка мыши
                         self.dragging = False
 
-                elif (
-                    event.type == pygame.MOUSEMOTION
-                    and self.paused
-                    and self.dragging
-                ):
+                elif event.type == pygame.MOUSEMOTION and self.paused and self.dragging:
                     # Рисование при перетаскивании
                     self.toggle_cell(event.pos)
 
@@ -200,21 +181,14 @@ class GUI(UI):
             self.draw_lines()
 
             # Копируем game_surface на основной экран
-            self.screen.blit(
-                self.screen.subsurface((0, 0, self.width, self.height)),
-                (0, 50)
-            )
+            self.screen.blit(self.screen.subsurface((0, 0, self.width, self.height)), (0, 50))
             self.screen.set_clip(old_clip)
 
             # Отрисовываем информацию
             self.draw_info()
 
             # Обновляем состояние игры
-            should_update = (
-                not self.paused
-                and self.life.is_changing
-                and not self.life.is_max_generations_exceeded
-            )
+            should_update = not self.paused and self.life.is_changing and not self.life.is_max_generations_exceeded
             if should_update:
                 self.life.step()
 
