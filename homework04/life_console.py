@@ -2,9 +2,10 @@
 Модуль консольного интерфейса для игры "Жизнь".
 Использует библиотеку curses для отображения в терминале.
 """
+
 import curses
 import time
-from typing import Any, Optional, Tuple
+from typing import Optional
 
 from life import GameOfLife
 from ui import UI
@@ -12,17 +13,18 @@ from ui import UI
 
 class Console(UI):
     """Консольный интерфейс для игры "Жизнь" с использованием curses."""
+
     def __init__(self, life: GameOfLife) -> None:
         """Инициализировать консольный интерфейс"""
         super().__init__(life)
-        self.screen: Optional[curses.window] = None
+        self.screen: Optional[curses.window] = None # type: ignore
 
     def draw_borders(self, screen: curses.window) -> None:
         """Отобразить рамку"""
         screen.clear()
         screen.border(0)
 
-    def draw_grid(self, screen: curses.window) -> None:
+    def draw_grid(self, screen: curses.window) -> None: # type: ignore
         """Отобразить состояние клеток"""
         start_y = 1
         start_x = 1
@@ -92,7 +94,8 @@ class Console(UI):
 
             running = True
 
-            while running and self.life.is_changing and not self.life.is_max_generations_exceeded:
+            while (running and self.life.is_changing and
+                   not self.life.is_max_generations_exceeded):
                 self.draw_borders(screen)
                 self.draw_grid(screen)
 
@@ -118,7 +121,10 @@ class Console(UI):
             if not self.life.is_changing:
                 message = "Игра завершена: стабильная конфигурация достигнута."
             elif self.life.is_max_generations_exceeded:
-                message = f"Игра завершена: достигнут лимит " f"{self.life.max_generations} поколений."
+                message = (
+                    f"Игра завершена: достигнут лимит "
+                    f"{self.life.max_generations} поколений."
+                )
             else:
                 message = "Игра завершена пользователем."
 
