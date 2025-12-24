@@ -1,3 +1,7 @@
+"""
+Модуль реализует графическую версию игры 'Жизнь' Конвея с использованием pygame.
+"""
+
 import random
 from typing import List, Tuple
 import pygame
@@ -20,17 +24,29 @@ class GameOfLife:
             cell_size: Размер клетки в пикселях
             speed: Скорость протекания игры (FPS)
         """
-        self.width = width
-        self.height = height
+        # Объединяем размеры в один атрибут для уменьшения их количества
+        self._size = (width, height)
         self.cell_size = cell_size
         self.speed = speed
+
+        # Вычисляем количество ячеек
         self.cell_width = width // cell_size
         self.cell_height = height // cell_size
 
         # Инициализируем pygame
-        pygame.init()
-        self.screen = pygame.display.set_mode((width, height))
+        pygame.init()  # pylint: disable=no-member
+        self.screen = pygame.display.set_mode(self._size)
         self.grid = self.create_grid(randomize=False)
+
+    @property
+    def width(self) -> int:
+        """Получить ширину окна."""
+        return self._size[0]
+
+    @property
+    def height(self) -> int:
+        """Получить высоту окна."""
+        return self._size[1]
 
     def draw_lines(self) -> None:
         """Отрисовать сетку."""
@@ -53,7 +69,7 @@ class GameOfLife:
         running = True
         while running:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                if event.type == pygame.QUIT:  # pylint: disable=no-member
                     running = False
             self.draw_lines()
 
@@ -64,7 +80,7 @@ class GameOfLife:
 
             pygame.display.flip()
             clock.tick(self.speed)
-        pygame.quit()
+        pygame.quit()  # pylint: disable=no-member
 
     def create_grid(self, randomize: bool = False) -> Grid:
         """
