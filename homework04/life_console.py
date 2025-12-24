@@ -1,3 +1,7 @@
+"""
+Модуль консольного интерфейса для игры "Жизнь".
+Использует библиотеку curses для отображения в терминале.
+"""
 import curses
 import time
 from typing import Any, Optional, Tuple
@@ -5,15 +9,9 @@ from typing import Any, Optional, Tuple
 from life import GameOfLife
 from ui import UI
 
-import curses
-import time
-from typing import Optional, Any, Tuple
-
-from life import GameOfLife
-from ui import UI
-
 
 class Console(UI):
+    """Консольный интерфейс для игры "Жизнь" с использованием curses."""
     def __init__(self, life: GameOfLife) -> None:
         """Инициализировать консольный интерфейс"""
         super().__init__(life)
@@ -94,8 +92,7 @@ class Console(UI):
 
             running = True
 
-            while (running and self.life.is_changing
-                   and not self.life.is_max_generations_exceeded):
+            while running and self.life.is_changing and not self.life.is_max_generations_exceeded:
                 self.draw_borders(screen)
                 self.draw_grid(screen)
 
@@ -121,8 +118,7 @@ class Console(UI):
             if not self.life.is_changing:
                 message = "Игра завершена: стабильная конфигурация достигнута."
             elif self.life.is_max_generations_exceeded:
-                message = (f"Игра завершена: достигнут лимит "
-                           f"{self.life.max_generations} поколений.")
+                message = f"Игра завершена: достигнут лимит " f"{self.life.max_generations} поколений."
             else:
                 message = "Игра завершена пользователем."
 
