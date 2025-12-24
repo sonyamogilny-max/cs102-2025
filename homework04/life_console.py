@@ -1,5 +1,12 @@
 import curses
 import time
+from typing import Any, Optional, Tuple
+
+from life import GameOfLife
+from ui import UI
+
+import curses
+import time
 from typing import Optional, Any, Tuple
 
 from life import GameOfLife
@@ -34,24 +41,24 @@ class Console(UI):
                 if self.life.curr_generation[y][x] == 1:
                     try:
                         screen.addch(start_y + y, start_x + x, "■")
-                    except curses.error:
+                    except curses.error:  # pylint: disable=no-member
                         pass
                 else:
                     try:
                         screen.addch(start_y + y, start_x + x, " ")
-                    except curses.error:
+                    except curses.error:  # pylint: disable=no-member
                         pass
 
         info = f"Поколение: {self.life.generations} | Клавиша 'q' для выхода"
         try:
             screen.addstr(rows - 1, 2, info[: cols - 4])
-        except curses.error:
+        except curses.error:  # pylint: disable=no-member
             pass
 
         screen.refresh()
 
     def handle_input(self, screen: curses.window, key: int) -> bool:
-        """Обработать ввод пользователя"""
+        """Обработать ввод пользователя."""
         if key == ord("q") or key == ord("Q"):
             return False
         if key == 27:  # ESC
@@ -63,7 +70,7 @@ class Console(UI):
             try:
                 screen.addstr(rows - 1, 2, pause_msg[: cols - 4])
                 screen.refresh()
-            except curses.error:
+            except curses.error:  # pylint: disable=no-member
                 pass
             screen.getch()  # Ждем любую клавишу
             screen.nodelay(True)  # Возвращаем неблокирующий ввод
@@ -76,14 +83,14 @@ class Console(UI):
 
         try:
             # Настройки curses
-            curses.curs_set(0)  # Скрываем курсор
+            curses.curs_set(0)  # Скрываем курсор  # pylint: disable=no-member
             screen.nodelay(True)  # Неблокирующий ввод
             screen.timeout(100)  # Таймаут для обновления экрана (100 мс)
 
             # Включаем поддержку цветов (если доступно)
-            if curses.has_colors():
+            if curses.has_colors():  # pylint: disable=no-member
                 curses.start_color()
-                curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+                curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)  # pylint: disable=no-member
 
             running = True
 
@@ -96,7 +103,7 @@ class Console(UI):
                     key = screen.getch()
                     if key != -1:  # -1 означает отсутствие ввода
                         running = self.handle_input(screen, key)
-                except curses.error:
+                except curses.error:  # pylint: disable=no-member
                     pass
 
                 # Выполняем один шаг игры
@@ -123,8 +130,8 @@ class Console(UI):
                 screen.addstr(rows - 1, 2, message[: cols - 4])
                 screen.refresh()
                 screen.getch()  # Ждем любую клавишу перед выходом
-            except curses.error:
+            except curses.error:  # pylint: disable=no-member
                 pass
 
         finally:
-            curses.endwin()
+            curses.endwin()  # pylint: disable=no-member
