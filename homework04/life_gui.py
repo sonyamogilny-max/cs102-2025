@@ -1,6 +1,7 @@
 import pygame
-from life import GameOfLife
 from pygame.locals import *
+
+from life import GameOfLife
 from ui import UI
 
 
@@ -9,7 +10,7 @@ class GUI(UI):
         super().__init__(life)
         self.cell_size = cell_size
         self.speed = speed
-        self.screen = None
+        self.screen: pygame.Surface = None  # type: ignore
         self.paused = False
         self.dragging = False  # Для перетаскивания клеток
         self.running = True
@@ -19,12 +20,18 @@ class GUI(UI):
         self.height = life.rows * cell_size
 
     def draw_lines(self) -> None:
+        if self.screen is None:
+            return
+
         for x in range(0, self.width, self.cell_size):
             pygame.draw.line(self.screen, pygame.Color("black"), (x, 0), (x, self.height))
         for y in range(0, self.height, self.cell_size):
             pygame.draw.line(self.screen, pygame.Color("black"), (0, y), (self.width, y))
 
     def draw_grid(self) -> None:
+        if self.screen is None:
+            return
+
         for y in range(self.life.rows):
             for x in range(self.life.cols):
                 color = pygame.Color("green") if self.life.curr_generation[y][x] else pygame.Color("white")
@@ -35,7 +42,7 @@ class GUI(UI):
                     x * self.cell_size + padding,
                     y * self.cell_size + padding,
                     self.cell_size - 2 * padding,
-                    self.cell_size - 2 * padding
+                    self.cell_size - 2 * padding,
                 )
                 pygame.draw.rect(self.screen, color, rect)
 
@@ -49,6 +56,9 @@ class GUI(UI):
             self.life.curr_generation[grid_y][grid_x] = 1 - self.life.curr_generation[grid_y][grid_x]
 
     def draw_info(self) -> None:
+        if self.screen is None:
+            return
+
         """Отображение информации о состоянии игры"""
         font = pygame.font.Font(None, 24)
 
@@ -74,8 +84,7 @@ class GUI(UI):
         state_surface = font.render(state_text, True, pygame.Color("black"))
 
         # Фон для текста
-        pygame.draw.rect(self.screen, pygame.Color("white"),
-                         (0, 0, self.width, 50))
+        pygame.draw.rect(self.screen, pygame.Color("white"), (0, 0, self.width, 50))
 
         self.screen.blit(gen_surface, (10, 10))
         self.screen.blit(state_surface, (10, 35))
@@ -102,9 +111,9 @@ class GUI(UI):
 
                     elif event.key == K_r and self.paused:
                         # Сброс игры (только в паузе)
-                        self.life = GameOfLife((self.life.rows, self.life.cols),
-                                               randomize=True,
-                                               max_generations=self.life.max_generations)
+                        self.life = GameOfLife(
+                            (self.life.rows, self.life.cols), randomize=True, max_generations=self.life.max_generations
+                        )
 
                     elif event.key == K_c and self.paused:
                         # Очистка поля (только в паузе)
@@ -124,6 +133,9 @@ class GUI(UI):
                 elif event.type == MOUSEMOTION and self.paused and self.dragging:
                     # Рисование при перетаскивании
                     self.toggle_cell(event.pos)
+
+            if self.screen is None:
+                continue
 
             # Заполняем фон
             self.screen.fill(pygame.Color("white"))
