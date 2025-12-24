@@ -1,5 +1,6 @@
 import curses
 import time
+from typing import Any
 
 from life import GameOfLife
 from ui import UI
@@ -7,23 +8,27 @@ from ui import UI
 
 class Console(UI):
     def __init__(self, life: GameOfLife) -> None:
+        """Инициализировать консольный интерфейс"""
         super().__init__(life)
+        self.screen = None
 
-    def draw_borders(self, screen) -> None:
-        """Отобразить рамку."""
+    def draw_borders(self, screen: Any) -> None:
+        """Отобразить рамку"""
         screen.clear()
         screen.border(0)
 
-    def draw_grid(self, screen) -> None:
-        """Отобразить состояние клеток."""
+    def draw_grid(self, screen: Any) -> None:
+        """Отобразить состояние клеток"""
         start_y = 1
         start_x = 1
 
+        rows, cols = screen.getmaxyx()
+
         for y in range(self.life.rows):
-            if y >= curses.LINES - 2:
+            if y >= rows - 2:
                 break
             for x in range(self.life.cols):
-                if x >= curses.COLS - 2:
+                if x >= cols - 2:
                     break
 
                 if self.life.curr_generation[y][x] == 1:
@@ -39,19 +44,39 @@ class Console(UI):
 
         info = f"Поколение: {self.life.generations} | Клавиша 'q' для выхода"
         try:
-            screen.addstr(curses.LINES - 1, 2, info[: curses.COLS - 4])
+            screen.addstr(rows - 1, 2, info[: cols - 4])
         except curses.error:
             pass
 
         screen.refresh()
 
+    def handle_input(self, screen: Any, key: int) -> bool:
+        """Обработать ввод пользователя"""
+        if key == ord("q") or key == ord("Q"):
+            return False
+        if key == 27:  # ESC
+            return False
+        if key == ord(" "):  # Пауза по пробелу
+            screen.nodelay(False)  # Блокирующий ввод для паузы
+            rows, cols = screen.getmaxyx()
+            pause_msg = "Пауза. Нажмите любую клавишу для продолжения..."
+            try:
+                screen.addstr(rows - 1, 2, pause_msg[: cols - 4])
+                screen.refresh()
+            except curses.error:
+                pass
+            screen.getch()  # Ждем любую клавишу
+            screen.nodelay(True)  # Возвращаем неблокирующий ввод
+        return True
+
     def run(self) -> None:
-        screen = curses.initscr()
+        """Запустить основной цикл игры"""
+        self.screen = curses.initscr()
         try:
             # Настройки curses
             curses.curs_set(0)  # Скрываем курсор
-            screen.nodelay(True)  # Неблокирующий ввод
-            screen.timeout(100)  # Таймаут для обновления экрана (100 мс)
+            self.screen.nodelay(True)  # Неблокирующий ввод
+            self.screen.timeout(100)  # Таймаут для обновления экрана (100 мс)
 
             # Включаем поддержку цветов (если доступно)
             if curses.has_colors():
@@ -60,27 +85,15 @@ class Console(UI):
 
             running = True
 
-            while running and self.life.is_changing and not self.life.is_max_generations_exceeded:
-                self.draw_borders(screen)
-                self.draw_grid(screen)
+            while (running and self.life.is_changing
+                   and not self.life.is_max_generations_exceeded):
+                self.draw_borders(self.screen)
+                self.draw_grid(self.screen)
 
                 try:
-                    key = screen.getch()
-
-                    if key == ord("q") or key == ord("Q"):
-                        running = False
-
-                    elif key == 27:  # ESC
-                        running = False
-
-                    # Пауза по пробелу
-                    elif key == ord(" "):
-                        screen.nodelay(False)  # Блокирующий ввод для паузы
-                        screen.addstr(curses.LINES - 1, 2, "Пауза. Нажмите любую клавишу для продолжения...")
-                        screen.refresh()
-                        screen.getch()  # Ждем любую клавишу
-                        screen.nodelay(True)  # Возвращаем неблокирующий ввод
-
+                    key = self.screen.getch()
+                    if key != -1:  # -1 означает отсутствие ввода
+                        running = self.handle_input(self.screen, key)
                 except curses.error:
                     pass
 
@@ -91,21 +104,23 @@ class Console(UI):
                 time.sleep(0.1)
 
             # Отображаем финальное состояние
-            self.draw_borders(screen)
-            self.draw_grid(screen)
+            self.draw_borders(self.screen)
+            self.draw_grid(self.screen)
 
             # Сообщение о завершении
+            rows, cols = self.screen.getmaxyx()
             if not self.life.is_changing:
                 message = "Игра завершена: стабильная конфигурация достигнута."
             elif self.life.is_max_generations_exceeded:
-                message = f"Игра завершена: достигнут лимит {self.life.max_generations} поколений."
+                message = (f"Игра завершена: достигнут лимит "
+                           f"{self.life.max_generations} поколений.")
             else:
                 message = "Игра завершена пользователем."
 
             try:
-                screen.addstr(curses.LINES - 1, 2, message[: curses.COLS - 4])
-                screen.refresh()
-                screen.getch()  # Ждем любую клавишу перед выходом
+                self.screen.addstr(rows - 1, 2, message[: cols - 4])
+                self.screen.refresh()
+                self.screen.getch()  # Ждем любую клавишу перед выходом
             except curses.error:
                 pass
 
