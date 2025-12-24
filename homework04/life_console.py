@@ -10,12 +10,12 @@ class Console(UI):
         super().__init__(life)
 
     def draw_borders(self, screen) -> None:
-        """ Отобразить рамку. """
+        """Отобразить рамку."""
         screen.clear()
         screen.border(0)
 
     def draw_grid(self, screen) -> None:
-        """ Отобразить состояние клеток. """
+        """Отобразить состояние клеток."""
         start_y = 1
         start_x = 1
 
@@ -28,18 +28,18 @@ class Console(UI):
 
                 if self.life.curr_generation[y][x] == 1:
                     try:
-                        screen.addch(start_y + y, start_x + x, '■')
+                        screen.addch(start_y + y, start_x + x, "■")
                     except curses.error:
                         pass
                 else:
                     try:
-                        screen.addch(start_y + y, start_x + x, ' ')
+                        screen.addch(start_y + y, start_x + x, " ")
                     except curses.error:
                         pass
 
         info = f"Поколение: {self.life.generations} | Клавиша 'q' для выхода"
         try:
-            screen.addstr(curses.LINES - 1, 2, info[:curses.COLS - 4])
+            screen.addstr(curses.LINES - 1, 2, info[: curses.COLS - 4])
         except curses.error:
             pass
 
@@ -50,7 +50,7 @@ class Console(UI):
         try:
             # Настройки curses
             curses.curs_set(0)  # Скрываем курсор
-            screen.nodelay(1)  # Неблокирующий ввод
+            screen.nodelay(True)  # Неблокирующий ввод
             screen.timeout(100)  # Таймаут для обновления экрана (100 мс)
 
             # Включаем поддержку цветов (если доступно)
@@ -67,19 +67,19 @@ class Console(UI):
                 try:
                     key = screen.getch()
 
-                    if key == ord('q') or key == ord('Q'):
+                    if key == ord("q") or key == ord("Q"):
                         running = False
 
                     elif key == 27:  # ESC
                         running = False
 
                     # Пауза по пробелу
-                    elif key == ord(' '):
-                        screen.nodelay(0)  # Блокирующий ввод для паузы
+                    elif key == ord(" "):
+                        screen.nodelay(False)  # Блокирующий ввод для паузы
                         screen.addstr(curses.LINES - 1, 2, "Пауза. Нажмите любую клавишу для продолжения...")
                         screen.refresh()
                         screen.getch()  # Ждем любую клавишу
-                        screen.nodelay(1)  # Возвращаем неблокирующий ввод
+                        screen.nodelay(True)  # Возвращаем неблокирующий ввод
 
                 except curses.error:
                     pass
@@ -103,7 +103,7 @@ class Console(UI):
                 message = "Игра завершена пользователем."
 
             try:
-                screen.addstr(curses.LINES - 1, 2, message[:curses.COLS - 4])
+                screen.addstr(curses.LINES - 1, 2, message[: curses.COLS - 4])
                 screen.refresh()
                 screen.getch()  # Ждем любую клавишу перед выходом
             except curses.error:
