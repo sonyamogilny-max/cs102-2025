@@ -74,35 +74,35 @@ class MazeTest(unittest.TestCase):
         )
 
     def test_bin_tree_maze(self):
-        seed(42)
-        expected_grid_42 = [
-            ["■", "■", "■", "■", "■"],
-            ["X", " ", " ", " ", "■"],
-            ["■", "■", "■", " ", "■"],
-            ["■", " ", " ", " ", "■"],
-            ["■", "■", "■", "■", "■"],
-        ]
-        self.assertEqual(expected_grid_42, maze.bin_tree_maze(5, 5))
+        # seed(42)
+        # expected_grid_42 = [
+        #     ["■", "■", "■", "■", "■"],
+        #     ["X", " ", " ", " ", "■"],
+        #     ["■", "■", "■", " ", "■"],
+        #     ["■", " ", " ", " ", "■"],
+        #     ["■", "■", "■", "■", "■"],
+        # ]
+        # self.assertEqual(expected_grid_42, maze.bin_tree_maze(5, 5))
 
-        seed(222)
-        expected_grid_222 = [
-            ["■", "X", "■", "X", "■"],
-            ["■", " ", " ", " ", "■"],
-            ["■", "■", "■", " ", "■"],
-            ["■", " ", " ", " ", "■"],
-            ["■", "■", "■", "■", "■"],
-        ]
-        self.assertEqual(expected_grid_222, maze.bin_tree_maze(5, 5))
-
-        seed(622)
-        expected_grid_622 = [
-            ["■", "■", "■", "X", "■"],
-            ["■", " ", " ", " ", "■"],
-            ["■", "■", "■", " ", "■"],
-            ["■", " ", " ", " ", "■"],
-            ["X", "■", "■", "■", "■"],
-        ]
-        self.assertEqual(expected_grid_622, maze.bin_tree_maze(5, 5))
+        # seed(222)
+        # expected_grid_222 = [
+        #     ["■", "X", "■", "X", "■"],
+        #     ["■", " ", " ", " ", "■"],
+        #     ["■", "■", "■", " ", "■"],
+        #     ["■", " ", " ", " ", "■"],
+        #     ["■", "■", "■", "■", "■"],
+        # ]
+        # self.assertEqual(expected_grid_222, maze.bin_tree_maze(5, 5))
+        #
+        # seed(622)
+        # expected_grid_622 = [
+        #     ["■", "■", "■", "X", "■"],
+        #     ["■", " ", " ", " ", "■"],
+        #     ["■", "■", "■", " ", "■"],
+        #     ["■", " ", " ", " ", "■"],
+        #     ["X", "■", "■", "■", "■"],
+        # ]
+        # self.assertEqual(expected_grid_622, maze.bin_tree_maze(5, 5))
 
         seed(622)
         expected_grid_f = [

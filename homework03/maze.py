@@ -150,9 +150,7 @@ def make_step(grid: List[List[Union[str, int]]], k: int) -> List[List[Union[str,
     return new_grid
 
 
-def shortest_path(
-    grid: List[List[Union[str, int]]], exit_coord: Tuple[int, int]
-) -> Optional[List[Tuple[int, int]]]:
+def shortest_path(grid: List[List[Union[str, int]]], exit_coord: Tuple[int, int]) -> Optional[List[Tuple[int, int]]]:
     """
 
     :param grid:
