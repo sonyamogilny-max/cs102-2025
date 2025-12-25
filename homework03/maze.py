@@ -19,29 +19,22 @@ def remove_wall(grid: List[List[Union[str, int]]], coord: Tuple[int, int]) -> Li
     :return:
     """
 
-    x, y = coord
+    res = [row[:] for row in grid]
+    row, col = coord
+    direct = choice(["up", "right"])
 
-    # Определяем возможные направления
-    directions = []
+    if direct == "right":
+        if col + 2 < len(res[0]) and res[row][col + 1] == "■":
+            res[row][col + 1] = " "
+        elif row - 1 > 0 and res[row - 1][col] == "■":
+            res[row - 1][col] = " "
+    elif direct == "up":
+        if row - 1 > 0 and res[row - 1][col] == "■":
+            res[row - 1][col] = " "
+        elif col + 2 < len(res[0]) and res[row][col + 1] == "■":
+            res[row][col + 1] = " "
 
-    # Можно удалить стенку наверх
-    if x > 1:
-        directions.append("up")
-
-    # Можно удалить стенку направо
-    if y < len(grid[0]) - 2:
-        directions.append("right")
-
-    # Выбираем направление
-    if directions:
-        direction = choice(directions)
-
-        if direction == "up":
-            grid[x - 1][y] = " "
-        elif direction == "right":
-            grid[x][y + 1] = " "
-
-    return grid
+    return res
 
 
 #
@@ -57,50 +50,25 @@ def bin_tree_maze(rows: int = 15, cols: int = 15, random_exit: bool = True) -> L
 
     grid = create_grid(rows, cols)
     empty_cells = []
-
-    # Создаем ячейки
-    for x in range(rows):
-        for y in range(cols):
+    for x, row in enumerate(grid):
+        for y, _ in enumerate(row):
             if x % 2 == 1 and y % 2 == 1:
                 grid[x][y] = " "
                 empty_cells.append((x, y))
 
-    # Сортируем ячейки для детерминированного порядка
-    empty_cells.sort()
-
-    # Применяем алгоритм бинарного дерева
     for cell in empty_cells:
         grid = remove_wall(grid, cell)
 
-    # Генерация входа и выхода
+    # генерация входа и выхода
     if random_exit:
-        # Генерируем вход
-        x_in = randint(0, rows - 1)
-        if x_in in (0, rows - 1):
-            y_in = randint(0, cols - 1)
-        else:
-            y_in = choice((0, cols - 1))
-
-        # Генерируем выход
-        x_out = randint(0, rows - 1)
-        if x_out in (0, rows - 1):
-            y_out = randint(0, cols - 1)
-        else:
-            y_out = choice((0, cols - 1))
-
-        # Убедимся, что вход и выход не совпадают
-        while (x_in, y_in) == (x_out, y_out):
-            x_out = randint(0, rows - 1)
-            if x_out in (0, rows - 1):
-                y_out = randint(0, cols - 1)
-            else:
-                y_out = choice((0, cols - 1))
+        x_in, x_out = randint(0, rows - 1), randint(0, rows - 1)
+        y_in = randint(0, cols - 1) if x_in in (0, rows - 1) else choice((0, cols - 1))
+        y_out = randint(0, cols - 1) if x_out in (0, rows - 1) else choice((0, cols - 1))
     else:
         x_in, y_in = 0, cols - 2
         x_out, y_out = rows - 1, 1
 
-    grid[x_in][y_in] = "X"
-    grid[x_out][y_out] = "X"
+    grid[x_in][y_in], grid[x_out][y_out] = "X", "X"
 
     return grid
 
@@ -294,41 +262,28 @@ def solve_maze(
     """
     exits = get_exits(grid)
     if len(exits) < 2:
-        return grid, list(exits) if exits else None
-
-    start, end = exits[0], exits[1]
-
-    rows, cols = len(grid), len(grid[0])
-    work_grid = []
-    for row in grid:
-        new_row = []
-        for cell in row:
-            if cell == "■":
-                new_row.append(cell)
-            else:
-                new_row.append(0)
-        work_grid.append(new_row)
-
-    work_grid[start[0]][start[1]] = 1
-
-    k = 1
-    while work_grid[end[0]][end[1]] == 0:
-        work_grid = make_step(work_grid, k)
-        k += 1
-        if k > rows * cols:
+        return grid, exits
+    else:
+        entrance = exits[1]
+        exit = exits[0]
+        if encircled_exit(grid, exit):
             return grid, None
-
-    path = shortest_path(work_grid, end)
-    if not path:
-        return grid, None
-
-    final_path = list(reversed(path))
-
-    result_grid = [row.copy() for row in grid]
-    for x, y in final_path[1:-1]:
-        result_grid[x][y] = "*"
-
-    return result_grid, final_path
+        else:
+            for i in range(len(grid)):
+                for j in range(len(grid[0])):
+                    if grid[i][j] == " ":
+                        grid[i][j] = 0
+            grid[entrance[0]][entrance[1]] = 1
+            grid[exit[0]][exit[1]] = 0
+            k = 1
+            while grid[exit[0]][exit[1]] == 0:
+                grid = make_step(grid, k)
+                k += 1
+            back = shortest_path(grid, exit)
+            if back is None:
+                return grid, None
+            res = back[::-1]
+            return grid, res
 
 
 def add_path_to_grid(
