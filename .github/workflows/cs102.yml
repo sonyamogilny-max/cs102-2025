@@ -13,7 +13,8 @@ jobs:
         python-version: '3.12.6'
     - name: Install dependencies
       run: |
-        pip install isort black pylint pytest
+        pip install isort black pylint
+        pip install mypy
     - name: Install project dependencies
       run: |
         if [ -f ${{ github.head_ref }}/requirements.txt ];
