@@ -1,3 +1,5 @@
 .idea/
 .ides/*
 !.idea/.keep
+.idea/*
+!.idea/.keep
