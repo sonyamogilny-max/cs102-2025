@@ -3,10 +3,15 @@ GUI для визуализации лабиринта.
 """
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from typing import List, Union
 
 from maze import add_path_to_grid, bin_tree_maze, solve_maze
+
+# Глобальные переменные для GUI
+GRID: List[List[Union[str, int]]] = []
+CELL_SIZE: int = 10
+CANVAS: tk.Canvas = None  # type: ignore
 
 
 def draw_cell(x_coord: int, y_coord: int, color: str, size: int = 10) -> None:
@@ -22,7 +27,7 @@ def draw_cell(x_coord: int, y_coord: int, color: str, size: int = 10) -> None:
     y_coord *= size
     x1 = x_coord + size
     y1 = y_coord + size
-    canvas.create_rectangle(x_coord, y_coord, x1, y1, fill=color)
+    CANVAS.create_rectangle(x_coord, y_coord, x1, y1, fill=color)
 
 
 def draw_maze(grid: List[List[Union[str, int]]], size: int = 10) -> None:
@@ -53,35 +58,35 @@ def show_solution() -> None:
     """
     Находит и отображает решение лабиринта.
     """
-    global GRID  # noqa: PLW0603
+    global GRID, CELL_SIZE, CANVAS  # noqa: PLW0603
 
     maze_with_path, path = solve_maze(GRID)
     maze_with_path = add_path_to_grid(GRID, path)
 
     if path:
         # Очищаем канвас и рисуем лабиринт с путем
-        canvas.delete("all")
+        CANVAS.delete("all")
         draw_maze(maze_with_path, CELL_SIZE)
     else:
-        tk.messagebox.showinfo("Message", "No solutions")
+        messagebox.showinfo("Message", "No solutions")
 
 
 def main() -> None:
     """
     Основная функция для запуска GUI.
     """
-    global GRID, CELL_SIZE, canvas  # noqa: PLW0603
+    global GRID, CELL_SIZE, CANVAS  # noqa: PLW0603
 
-    N, M = 51, 77
+    rows, cols = 51, 77
     CELL_SIZE = 10
-    GRID = bin_tree_maze(N, M)
+    GRID = bin_tree_maze(rows, cols)
 
     window = tk.Tk()
     window.title("Maze")
-    window.geometry(f"{M * CELL_SIZE + 100}x{N * CELL_SIZE + 100}")
+    window.geometry(f"{cols * CELL_SIZE + 100}x{rows * CELL_SIZE + 100}")
 
-    canvas = tk.Canvas(window, width=M * CELL_SIZE, height=N * CELL_SIZE)
-    canvas.pack()
+    CANVAS = tk.Canvas(window, width=cols * CELL_SIZE, height=rows * CELL_SIZE)
+    CANVAS.pack()
 
     draw_maze(GRID, CELL_SIZE)
     ttk.Button(window, text="Solve", command=show_solution).pack(pady=20)
