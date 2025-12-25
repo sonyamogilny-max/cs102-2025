@@ -13,7 +13,7 @@ jobs:
         python-version: '3.12.6'
     - name: Install dependencies
       run: |
-        pip install isort black pylint
+        pip install isort black pylint pandas
         pip install mypy
     - name: Install project dependencies
       run: |
