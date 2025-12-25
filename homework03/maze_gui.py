@@ -1,3 +1,7 @@
+"""
+GUI для визуализации лабиринта.
+"""
+
 import tkinter as tk
 from tkinter import messagebox, ttk
 from typing import List, Union
@@ -5,7 +9,16 @@ from typing import List, Union
 from maze import add_path_to_grid, bin_tree_maze, solve_maze
 
 
-def draw_cell(x, y, color, size: int = 10):
+def draw_cell(x: int, y: int, color: str, size: int = 10):
+    """
+    Рисует одну ячейку лабиринта.
+
+    :param x: координата X на канвасе
+    :param y: координата Y на канвасе
+    :param color: цвет заливки
+    :param size: размер ячейки
+    """
+
     x *= size
     y *= size
     x1 = x + size
@@ -13,11 +26,18 @@ def draw_cell(x, y, color, size: int = 10):
     canvas.create_rectangle(x, y, x1, y1, fill=color)
 
 
-def draw_maze(grid: List[List[Union[str, int]]], size: int = 10):
+def draw_maze(grid: List[List[Union[str, int]]], size: int = 10) -> None:
+    """
+    Рисует весь лабиринт.
+
+    :param grid: лабиринт в виде матрицы
+    :param size: размер ячейки
+    """
+
     for x, row in enumerate(grid):
         for y, cell in enumerate(row):
             if cell == " ":
-                color = "White"
+                color = "white"
             elif cell == "■":
                 color = "black"
             elif cell == "X":
@@ -25,7 +45,11 @@ def draw_maze(grid: List[List[Union[str, int]]], size: int = 10):
             draw_cell(y, x, color, size)
 
 
-def show_solution():
+def show_solution() -> None:
+    """
+    Находит и отображает решение лабиринта.
+    """
+
     maze, path = solve_maze(GRID)
     maze = add_path_to_grid(GRID, path)
     if path:
