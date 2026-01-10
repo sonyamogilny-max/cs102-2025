@@ -19,22 +19,21 @@ def remove_wall(grid: List[List[Union[str, int]]], coord: Tuple[int, int]) -> Li
     :return:
     """
 
-    res = [row[:] for row in grid]
     row, col = coord
     direct = choice(["up", "right"])
 
     if direct == "right":
-        if col + 2 < len(res[0]) and res[row][col + 1] == "■":
-            res[row][col + 1] = " "
-        elif row - 1 > 0 and res[row - 1][col] == "■":
-            res[row - 1][col] = " "
+        if col + 2 < len(grid[0]) and grid[row][col + 1] == "■":
+            grid[row][col + 1] = " "
+        elif row - 1 > 0 and grid[row - 1][col] == "■":
+            grid[row - 1][col] = " "
     elif direct == "up":
-        if row - 1 > 0 and res[row - 1][col] == "■":
-            res[row - 1][col] = " "
-        elif col + 2 < len(res[0]) and res[row][col + 1] == "■":
-            res[row][col + 1] = " "
+        if row - 1 > 0 and grid[row - 1][col] == "■":
+            grid[row - 1][col] = " "
+        elif col + 2 < len(grid[0]) and grid[row][col + 1] == "■":
+            grid[row][col + 1] = " "
 
-    return res
+    return grid
 
 
 #
@@ -110,10 +109,10 @@ def make_step(grid: List[List[Union[str, int]]], k: int) -> List[List[Union[str,
             if grid[x][y] == k:
                 neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
 
-                for nx, ny in neighbors:
-                    if 0 <= nx < rows and 0 <= ny < cols:
-                        if grid[nx][ny] == 0 or grid[nx][ny] == " ":
-                            new_grid[nx][ny] = k + 1
+                for neighbor_x, neighbor_y in neighbors:
+                    if 0 <= neighbor_x < rows and 0 <= neighbor_y < cols:
+                        if grid[neighbor_x][neighbor_y] == 0 or grid[neighbor_x][neighbor_y] == " ":
+                            new_grid[neighbor_x][neighbor_y] = k + 1
 
     return new_grid
 
@@ -128,58 +127,55 @@ def shortest_path(grid: List[List[Union[str, int]]], exit_coord: Tuple[int, int]
     if not grid:
         return None
 
-    x, y = exit_coord
+    exit_x, exit_y = exit_coord
     rows = len(grid)
     cols = len(grid[0])
 
-    # Получаем числовое значение в клетке выхода
-    def cell_to_int(cell):
-        if type(cell) == int:
-            return cell
-        elif type(cell) == str and cell.isdigit():
-            return int(cell)
-        return None
+    try:
+        exit_value = int(grid[exit_x][exit_y])
+    except (ValueError, TypeError):
+        exit_value = None
+        for delta_x, delta_y in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            neighbor_x, neighbor_y = exit_x + delta_x, exit_y + delta_y
+            if 0 <= neighbor_x < rows and 0 <= neighbor_y < cols:
+                try:
+                    neighbor_val = int(grid[neighbor_x][neighbor_y])
+                    if neighbor_val > 0:
+                        exit_value = neighbor_val + 1
+                        break
+                except (ValueError, TypeError):
+                    continue
 
-    exit_value = cell_to_int(grid[x][y])
-
-    # Если клетка выхода содержит не число, пытаемся определить значение
-    if exit_value is None:
-        # Проверяем соседей
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < rows and 0 <= ny < cols:
-                neighbor_val = cell_to_int(grid[nx][ny])
-                if neighbor_val is not None and neighbor_val > 0:
-                    exit_value = neighbor_val + 1
-                    break
-        else:
+        if not exit_value:
             return None
 
-    if exit_value <= 0:
+    if exit_value is not None and exit_value <= 0:
         return None
 
     # Восстанавливаем путь ОТ ВЫХОДА К ВХОДУ
-    path = [(x, y)]
+    path = [(exit_x, exit_y)]
     current_val = exit_value
-    cx, cy = x, y
+    current_x, current_y = exit_x, exit_y
 
-    while current_val > 1:
+    while current_val is not None and current_val > 1:
         # Ищем следующую клетку
         next_found = False
 
         # Порядок проверки: вверх, вниз, влево, вправо
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = cx + dx, cy + dy
+        for delta_x, delta_y in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            neighbor_x, neighbor_y = current_x + delta_x, current_y + delta_y
 
-            if 0 <= nx < rows and 0 <= ny < cols:
-                neighbor_val = cell_to_int(grid[nx][ny])
-
-                if neighbor_val == current_val - 1:
-                    cx, cy = nx, ny
-                    current_val = neighbor_val
-                    path.append((cx, cy))
-                    next_found = True
-                    break
+            if 0 <= neighbor_x < rows and 0 <= neighbor_y < cols:
+                try:
+                    neighbor_val = int(grid[neighbor_x][neighbor_y])
+                    if neighbor_val is not None and neighbor_val == current_val - 1:
+                        current_x, current_y = neighbor_x, neighbor_y
+                        current_val = neighbor_val
+                        path.append((current_x, current_y))
+                        next_found = True
+                        break
+                except (ValueError, TypeError):
+                    continue
 
         if not next_found:
             return None
@@ -187,14 +183,14 @@ def shortest_path(grid: List[List[Union[str, int]]], exit_coord: Tuple[int, int]
     return path
 
 
+def is_wall(cell):
+    return cell != " " and cell != "" and cell != "X"
+
+
 def encircled_exit(grid: List[List[Union[str, int]]], coord: Tuple[int, int]) -> bool:
     x, y = coord
     rows = len(grid)
     cols = len(grid[0])
-
-    # функция для проверки, является ли клетка стенкой
-    def is_wall(cell):
-        return cell != " " and cell != "" and cell != "X"
 
     is_top = x == 0
     is_bottom = x == rows - 1
@@ -240,11 +236,11 @@ def encircled_exit(grid: List[List[Union[str, int]]], coord: Tuple[int, int]) ->
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
         for dx, dy in directions:
-            nx, ny = x + dx, y + dy
+            neighbor_x, neighbor_y = x + dx, y + dy
 
-            if not (0 <= nx < rows and 0 <= ny < cols):
+            if not (0 <= neighbor_x < rows and 0 <= neighbor_y < cols):
                 wall_count += 1
-            elif is_wall(grid[nx][ny]):
+            elif is_wall(grid[neighbor_x][neighbor_y]):
                 wall_count += 1
 
         return wall_count == 4
@@ -269,8 +265,8 @@ def solve_maze(
         if encircled_exit(grid, exit):
             return grid, None
         else:
-            for i in range(len(grid)):
-                for j in range(len(grid[0])):
+            for i, row in enumerate(grid):
+                for j, cell in enumerate(row):
                     if grid[i][j] == " ":
                         grid[i][j] = 0
             grid[entrance[0]][entrance[1]] = 1
