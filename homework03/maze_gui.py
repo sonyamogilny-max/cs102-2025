@@ -3,15 +3,10 @@ GUI для визуализации лабиринта.
 """
 
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import ttk
 from typing import List, Union
 
 from .maze import add_path_to_grid, bin_tree_maze, solve_maze
-
-# Глобальные переменные для GUI
-GRID: List[List[Union[str, int]]] = []
-CELL_SIZE: int = 10
-CANVAS: tk.Canvas = None  # type: ignore
 
 
 def draw_cell(x_coord: int, y_coord: int, color: str, size: int = 10) -> None:
@@ -27,7 +22,7 @@ def draw_cell(x_coord: int, y_coord: int, color: str, size: int = 10) -> None:
     y_coord *= size
     x1 = x_coord + size
     y1 = y_coord + size
-    CANVAS.create_rectangle(x_coord, y_coord, x1, y1, fill=color)
+    canvas.create_rectangle(x_coord, y_coord, x1, y1, fill=color)
 
 
 def draw_maze(grid: List[List[Union[str, int]]], size: int = 10) -> None:
@@ -39,60 +34,43 @@ def draw_maze(grid: List[List[Union[str, int]]], size: int = 10) -> None:
     """
     for x, row in enumerate(grid):
         for y, cell in enumerate(row):
-            if cell == " ":
-                color = "white"
-            elif cell == "■":
+            if cell == "■":
                 color = "black"
             elif cell == "X":
-                color = "blue"
-            elif cell == "*":
-                color = "red"
+                color = "green"
             else:
-                color = "white"  # для чисел или других символов
-
-            # Передаем x и y в правильном порядке
+                color = "white"
             draw_cell(y, x, color, size)
 
 
-def show_solution() -> None:
-    """
-    Находит и отображает решение лабиринта.
-    """
-    global GRID, CELL_SIZE, CANVAS  # noqa: PLW0603
-
-    maze_with_path, path = solve_maze(GRID)
-    maze_with_path = add_path_to_grid(GRID, path)
-
+def show_solution():
+    """Показывает решение лабиринта."""
+    maze, path = solve_maze(GRID)
+    maze = add_path_to_grid(GRID, path)
     if path:
-        # Очищаем канвас и рисуем лабиринт с путем
-        CANVAS.delete("all")
-        draw_maze(maze_with_path, CELL_SIZE)
+        draw_maze(maze, CELL_SIZE)
     else:
-        messagebox.showinfo("Message", "No solutions")
-
-
-def main() -> None:
-    """
-    Основная функция для запуска GUI.
-    """
-    global GRID, CELL_SIZE, CANVAS  # noqa: PLW0603
-
-    rows, cols = 51, 77
-    CELL_SIZE = 10
-    GRID = bin_tree_maze(rows, cols)
-
-    window = tk.Tk()
-    window.title("Maze")
-    window.geometry(f"{cols * CELL_SIZE + 100}x{rows * CELL_SIZE + 100}")
-
-    CANVAS = tk.Canvas(window, width=cols * CELL_SIZE, height=rows * CELL_SIZE)
-    CANVAS.pack()
-
-    draw_maze(GRID, CELL_SIZE)
-    ttk.Button(window, text="Solve", command=show_solution).pack(pady=20)
-
-    window.mainloop()
+        tk.messagebox.showinfo("Message", "No solutions")
 
 
 if __name__ == "__main__":
-    main()
+    global GRID, CELL_SIZE
+    N, M = 40, 50
+    CELL_SIZE = 15
+    GRID = bin_tree_maze(N, M)
+    temp_maze, temp_path = solve_maze(GRID)
+    while not temp_path:
+        GRID = bin_tree_maze(N, M)
+        temp_maze, temp_path = solve_maze(GRID)
+
+    window = tk.Tk()
+    window.title("Maze")
+    window.geometry(f"{N * CELL_SIZE + 100}x{M * CELL_SIZE + 100}")
+
+    canvas = tk.Canvas(window, width=M * CELL_SIZE, height=N * CELL_SIZE)
+    canvas.pack()
+
+    draw_maze([list(map(str, row)) for row in GRID], CELL_SIZE)
+    ttk.Button(window, text="Solve", command=show_solution).pack(pady=20)
+
+    window.mainloop()
